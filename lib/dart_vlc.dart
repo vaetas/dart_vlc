@@ -54,33 +54,18 @@ export 'package:dart_vlc/src/widgets/video.dart';
 class Player extends ffi.Player {
   final ValueNotifier<int?> textureId = ValueNotifier<int?>(null);
 
-  Player({
-    required int id,
-    ffi.VideoDimensions? videoDimensions,
-    List<String>? commandlineArguments,
-  }) : super(
-          id: id,
-          videoDimensions: videoDimensions,
-          commandlineArguments: commandlineArguments,
-        ) {
+  Player({required int id, super.videoDimensions, super.commandlineArguments})
+    : super(id: id) {
     () async {
-      textureId.value = await channel.invokeMethod(
-        kPlayerRegisterTexture,
-        {
-          'playerId': id,
-        },
-      );
+      textureId.value = await channel.invokeMethod(kPlayerRegisterTexture, {
+        'playerId': id,
+      });
     }();
   }
 
   @override
   void dispose() async {
-    await channel.invokeMethod(
-      kPlayerUnregisterTexture,
-      {
-        'playerId': id,
-      },
-    );
+    await channel.invokeMethod(kPlayerUnregisterTexture, {'playerId': id});
     textureId.value = null;
     super.dispose();
   }

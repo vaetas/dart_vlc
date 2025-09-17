@@ -9,7 +9,7 @@ void main() async {
 }
 
 class DartVLCExample extends StatelessWidget {
-  const DartVLCExample({Key? key}) : super(key: key);
+  const DartVLCExample({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -64,11 +64,9 @@ class PrimaryScreenState extends State<PrimaryScreen> {
       player.videoDimensionsStream.listen((value) {
         setState(() => videoDimensions = value);
       });
-      player.bufferingProgressStream.listen(
-        (value) {
-          setState(() => bufferingProgress = value);
-        },
-      );
+      player.bufferingProgressStream.listen((value) {
+        setState(() => bufferingProgress = value);
+      });
       player.errorStream.listen((event) {
         debugPrint('libVLC error.');
       });
@@ -111,13 +109,13 @@ class PrimaryScreenState extends State<PrimaryScreen> {
               clipBehavior: Clip.antiAlias,
               child: Video(
                 player: player,
-                width: isPhone ? 320 : 640,
-                height: isPhone ? 180 : 360,
+                width: 640,
+                height: 360,
                 volumeThumbColor: Colors.blue,
                 volumeActiveColor: Colors.blue,
-                showControls: !isPhone,
+                showControls: true,
               ),
-            )
+            ),
           ],
         ),
         Row(
@@ -138,12 +136,10 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                       margin: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
+                        children:
+                            <Widget>[
                               const Text('Playlist creation.'),
-                              Divider(
-                                height: 8.0,
-                                color: Colors.transparent,
-                              ),
+                              Divider(height: 8.0, color: Colors.transparent),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
@@ -151,9 +147,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     child: TextField(
                                       controller: controller,
                                       autofocus: true,
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                       decoration: InputDecoration.collapsed(
                                         hintStyle: const TextStyle(
                                           fontSize: 14.0,
@@ -166,8 +160,8 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     width: 160.0,
                                     child: DropdownButton<MediaType>(
                                       value: mediaType,
-                                      onChanged: (value) => this
-                                          .setState(() => mediaType = value!),
+                                      onChanged: (value) =>
+                                          setState(() => mediaType = value!),
                                       items: [
                                         DropdownMenuItem<MediaType>(
                                           value: MediaType.file,
@@ -207,55 +201,46 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                           medias.add(
                                             Media.file(
                                               File(
-                                                controller.text
-                                                    .replaceAll('"', ''),
+                                                controller.text.replaceAll(
+                                                  '"',
+                                                  '',
+                                                ),
                                               ),
                                             ),
                                           );
                                         } else if (mediaType ==
                                             MediaType.network) {
                                           medias.add(
-                                            Media.network(
-                                              controller.text,
-                                            ),
+                                            Media.network(controller.text),
                                           );
                                         }
                                         setState(() {});
                                       },
                                       child: Text(
                                         'Add to Playlist',
-                                        style: TextStyle(
-                                          fontSize: 14.0,
-                                        ),
+                                        style: TextStyle(fontSize: 14.0),
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const Divider(
-                                height: 12.0,
-                              ),
+                              const Divider(height: 12.0),
                               const Divider(
                                 height: 8.0,
                                 color: Colors.transparent,
                               ),
                               const Text('Playlist'),
                             ] +
-                            this
-                                .medias
+                            medias
                                 .map(
                                   (media) => ListTile(
                                     title: Text(
                                       media.resource,
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                     ),
                                     subtitle: Text(
                                       media.mediaType.toString(),
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                     ),
                                   ),
                                 )
@@ -268,18 +253,12 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                               Row(
                                 children: [
                                   ElevatedButton(
-                                    onPressed: () => setState(
-                                      () {
-                                        player.open(
-                                          Playlist(medias: medias),
-                                        );
-                                      },
-                                    ),
+                                    onPressed: () => setState(() {
+                                      player.open(Playlist(medias: medias));
+                                    }),
                                     child: Text(
                                       'Open into Player',
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                     ),
                                   ),
                                   const SizedBox(width: 12.0),
@@ -289,9 +268,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     },
                                     child: Text(
                                       'Clear the list',
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                     ),
                                   ),
                                 ],
@@ -313,39 +290,23 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                             height: 12.0,
                             color: Colors.transparent,
                           ),
-                          const Divider(
-                            height: 12.0,
-                          ),
+                          const Divider(height: 12.0),
                           const Text('Playback position.'),
-                          const Divider(
-                            height: 8.0,
-                            color: Colors.transparent,
-                          ),
+                          const Divider(height: 8.0, color: Colors.transparent),
                           Slider(
                             min: 0,
-                            max: this
-                                    .position
-                                    .duration
-                                    ?.inMilliseconds
-                                    .toDouble() ??
+                            max:
+                                position.duration?.inMilliseconds.toDouble() ??
                                 1.0,
-                            value: this
-                                    .position
-                                    .position
-                                    ?.inMilliseconds
-                                    .toDouble() ??
+                            value:
+                                position.position?.inMilliseconds.toDouble() ??
                                 0.0,
                             onChanged: (double position) => player.seek(
-                              Duration(
-                                milliseconds: position.toInt(),
-                              ),
+                              Duration(milliseconds: position.toInt()),
                             ),
                           ),
                           const Text('Event streams.'),
-                          const Divider(
-                            height: 8.0,
-                            color: Colors.transparent,
-                          ),
+                          const Divider(height: 8.0, color: Colors.transparent),
                           Table(
                             children: [
                               TableRow(
@@ -355,7 +316,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${general.volume}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -365,7 +326,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${general.rate}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -375,7 +336,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${position.position}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -385,7 +346,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${position.duration}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -395,7 +356,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${playback.isCompleted}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -405,7 +366,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${playback.isPlaying}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -415,7 +376,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${playback.isSeekable}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -425,7 +386,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${current.index}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -435,7 +396,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${current.media}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -445,7 +406,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '${current.medias}',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -455,7 +416,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '$videoDimensions',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                               TableRow(
@@ -465,7 +426,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     '$bufferingProgress',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                  )
+                                  ),
                                 ],
                               ),
                             ],
@@ -481,31 +442,22 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                       margin: const EdgeInsets.all(16.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
+                        children:
+                            const [
                               Text('Playback devices.'),
-                              Divider(
-                                height: 12.0,
-                                color: Colors.transparent,
-                              ),
-                              Divider(
-                                height: 12.0,
-                              ),
+                              Divider(height: 12.0, color: Colors.transparent),
+                              Divider(height: 12.0),
                             ] +
-                            this
-                                .devices
+                            devices
                                 .map(
                                   (device) => ListTile(
                                     title: Text(
                                       device.name,
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                     ),
                                     subtitle: Text(
                                       device.id,
-                                      style: const TextStyle(
-                                        fontSize: 14.0,
-                                      ),
+                                      style: const TextStyle(fontSize: 14.0),
                                     ),
                                     onTap: () => player.setDevice(device),
                                   ),
@@ -530,13 +482,9 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                 child: TextField(
                                   controller: metasController,
                                   autofocus: true,
-                                  style: const TextStyle(
-                                    fontSize: 14.0,
-                                  ),
+                                  style: const TextStyle(fontSize: 14.0),
                                   decoration: InputDecoration.collapsed(
-                                    hintStyle: const TextStyle(
-                                      fontSize: 14.0,
-                                    ),
+                                    hintStyle: const TextStyle(fontSize: 14.0),
                                     hintText: 'Enter Media path.',
                                   ),
                                 ),
@@ -552,27 +500,21 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                       value: MediaType.file,
                                       child: Text(
                                         MediaType.file.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 14.0,
-                                        ),
+                                        style: const TextStyle(fontSize: 14.0),
                                       ),
                                     ),
                                     DropdownMenuItem<MediaType>(
                                       value: MediaType.network,
                                       child: Text(
                                         MediaType.network.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 14.0,
-                                        ),
+                                        style: const TextStyle(fontSize: 14.0),
                                       ),
                                     ),
                                     DropdownMenuItem<MediaType>(
                                       value: MediaType.asset,
                                       child: Text(
                                         MediaType.asset.toString(),
-                                        style: const TextStyle(
-                                          fontSize: 14.0,
-                                        ),
+                                        style: const TextStyle(fontSize: 14.0),
                                       ),
                                     ),
                                   ],
@@ -597,24 +539,18 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                   },
                                   child: const Text(
                                     'Parse',
-                                    style: TextStyle(
-                                      fontSize: 14.0,
-                                    ),
+                                    style: TextStyle(fontSize: 14.0),
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                          const Divider(
-                            height: 12.0,
-                          ),
-                          const Divider(
-                            height: 8.0,
-                            color: Colors.transparent,
-                          ),
+                          const Divider(height: 12.0),
+                          const Divider(height: 8.0, color: Colors.transparent),
                           Text(
-                            JsonEncoder.withIndent('    ')
-                                .convert(metadataCurrentMedia?.metas),
+                            JsonEncoder.withIndent(
+                              '    ',
+                            ).convert(metadataCurrentMedia?.metas),
                           ),
                         ],
                       ),
@@ -629,14 +565,11 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _controls(context, isPhone),
-                    _playlist(context),
-                  ],
+                  children: [_controls(context, isPhone), _playlist(context)],
                 ),
               ),
           ],
-        )
+        ),
       ],
     );
   }
@@ -651,92 +584,55 @@ class PrimaryScreenState extends State<PrimaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text('Playback controls.'),
-            const Divider(
-              height: 8.0,
-              color: Colors.transparent,
-            ),
+            const Divider(height: 8.0, color: Colors.transparent),
             Row(
               children: [
                 ElevatedButton(
                   onPressed: () => player.play(),
-                  child: const Text(
-                    'play',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
+                  child: const Text('play', style: TextStyle(fontSize: 14.0)),
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
                   onPressed: () => player.pause(),
-                  child: const Text(
-                    'pause',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
+                  child: const Text('pause', style: TextStyle(fontSize: 14.0)),
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
                   onPressed: () => player.playOrPause(),
                   child: const Text(
                     'playOrPause',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
+                    style: TextStyle(fontSize: 14.0),
                   ),
                 ),
                 const SizedBox(width: 12.0),
               ],
             ),
-            const SizedBox(
-              height: 8.0,
-            ),
+            const SizedBox(height: 8.0),
             Row(
               children: [
                 ElevatedButton(
                   onPressed: () => player.stop(),
-                  child: const Text(
-                    'stop',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
+                  child: const Text('stop', style: TextStyle(fontSize: 14.0)),
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
                   onPressed: () => player.next(),
-                  child: const Text(
-                    'next',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
-                  ),
+                  child: const Text('next', style: TextStyle(fontSize: 14.0)),
                 ),
                 const SizedBox(width: 12.0),
                 ElevatedButton(
                   onPressed: () => player.previous(),
                   child: const Text(
                     'previous',
-                    style: TextStyle(
-                      fontSize: 14.0,
-                    ),
+                    style: TextStyle(fontSize: 14.0),
                   ),
                 ),
               ],
             ),
-            const Divider(
-              height: 12.0,
-              color: Colors.transparent,
-            ),
-            const Divider(
-              height: 12.0,
-            ),
+            const Divider(height: 12.0, color: Colors.transparent),
+            const Divider(height: 12.0),
             const Text('Volume control.'),
-            const Divider(
-              height: 8.0,
-              color: Colors.transparent,
-            ),
+            const Divider(height: 8.0, color: Colors.transparent),
             Slider(
               min: 0.0,
               max: 1.0,
@@ -747,10 +643,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
               },
             ),
             const Text('Playback rate control.'),
-            const Divider(
-              height: 8.0,
-              color: Colors.transparent,
-            ),
+            const Divider(height: 8.0, color: Colors.transparent),
             Slider(
               min: 0.5,
               max: 1.5,
@@ -781,13 +674,8 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text('Playlist manipulation.'),
-                  Divider(
-                    height: 12.0,
-                    color: Colors.transparent,
-                  ),
-                  Divider(
-                    height: 12.0,
-                  ),
+                  Divider(height: 12.0, color: Colors.transparent),
+                  Divider(height: 12.0),
                 ],
               ),
             ),
@@ -805,10 +693,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                     after = current.medias.length;
                   }
                   if (before < after) after--;
-                  player.move(
-                    before,
-                    after,
-                  );
+                  player.move(before, after);
                   setState(() {});
                 },
                 scrollDirection: Axis.vertical,

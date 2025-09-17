@@ -78,7 +78,7 @@ class VideoFrame {
 class Video extends StatefulWidget {
   /// {@macro video}
   Video({
-    Key? key,
+    super.key,
     @Deprecated('playerId is deprecated. Use player instead.') int? playerId,
     Player? player,
     this.width,
@@ -101,8 +101,7 @@ class Video extends StatefulWidget {
     this.progressBarTextStyle = const TextStyle(),
     this.filterQuality = FilterQuality.low,
     this.fillColor = Colors.black,
-  })  : player = player ?? players[playerId]! as Player,
-        super(key: key);
+  }) : player = player ?? players[playerId]! as Player;
 
   /// The [Player] whose [Video] output should be shown.
   final Player player;
@@ -231,8 +230,9 @@ class VideoStateTexture extends VideoStateBase {
     super.initState();
     _videoWidth = widget.player.videoDimensions.width.toDouble();
     _videoHeight = widget.player.videoDimensions.height.toDouble();
-    _videoDimensionsSubscription =
-        widget.player.videoDimensionsStream.listen((dimensions) {
+    _videoDimensionsSubscription = widget.player.videoDimensionsStream.listen((
+      dimensions,
+    ) {
       if (_videoWidth != dimensions.width.toDouble() &&
           _videoHeight != dimensions.height.toDouble()) {
         setState(() {
@@ -291,12 +291,13 @@ class VideoStateFallback extends VideoStateBase {
   Future<RawImage> getVideoFrameRawImage(VideoFrame videoFrame) async {
     Completer<ui.Image> imageCompleter = Completer<ui.Image>();
     ui.decodeImageFromPixels(
-        videoFrame.byteArray,
-        videoFrame.videoWidth,
-        videoFrame.videoHeight,
-        ui.PixelFormat.rgba8888,
-        (ui.Image i) => imageCompleter.complete(i),
-        rowBytes: 4 * videoFrame.videoWidth);
+      videoFrame.byteArray,
+      videoFrame.videoWidth,
+      videoFrame.videoHeight,
+      ui.PixelFormat.rgba8888,
+      (ui.Image i) => imageCompleter.complete(i),
+      rowBytes: 4 * videoFrame.videoWidth,
+    );
     ui.Image image = await imageCompleter.future;
 
     return RawImage(
@@ -312,9 +313,9 @@ class VideoStateFallback extends VideoStateBase {
   void initState() {
     super.initState();
     videoStreamControllers[playerId] = StreamController<VideoFrame>.broadcast();
-    videoStreamControllers[playerId]
-        ?.stream
-        .listen((VideoFrame videoFrame) async {
+    videoStreamControllers[playerId]?.stream.listen((
+      VideoFrame videoFrame,
+    ) async {
       videoFrameRawImage = await getVideoFrameRawImage(videoFrame);
       if (mounted && !(videoStreamControllers[playerId]?.isClosed ?? true)) {
         setState(() {});
@@ -332,9 +333,7 @@ class VideoStateFallback extends VideoStateBase {
   @override
   Widget present() {
     return videoFrameRawImage != null
-        ? SizedBox.expand(
-            child: ClipRect(child: videoFrameRawImage),
-          )
+        ? SizedBox.expand(child: ClipRect(child: videoFrameRawImage))
         : const SizedBox.shrink();
   }
 

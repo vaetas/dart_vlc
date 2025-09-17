@@ -20,7 +20,7 @@ class Devices {
     List<Device> devices = <Device>[];
     final devicesPtr = DevicesFFI.all(devices);
     for (int i = 0; i < devicesPtr.ref.size; i++) {
-      final devicePtr = devicesPtr.ref.devices.elementAt(i);
+      final devicePtr = (devicesPtr.ref.devices + i);
       devices.add(
         Device(
           devicePtr.ref.id.toDartString(),

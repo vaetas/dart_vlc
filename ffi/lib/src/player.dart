@@ -114,8 +114,7 @@ class Player {
     if (videoDimensions != null) {
       preferredVideoDimensions = videoDimensions;
     }
-    videoDimensionsController =
-        StreamController<VideoDimensions>.broadcast();
+    videoDimensionsController = StreamController<VideoDimensions>.broadcast();
     videoDimensionsStream = videoDimensionsController.stream;
     players[id] = this;
     // Parse [commandlineArguments] & convert to `char*[]`.

@@ -26,7 +26,7 @@ import 'package:dart_vlc_ffi/src/player_state/player_state.dart';
 
 class Control extends StatefulWidget {
   Control({
-    Key? key,
+    super.key,
     required this.child,
     required this.player,
     required this.showTimeLeft,
@@ -41,7 +41,7 @@ class Control extends StatefulWidget {
     required this.volumeInactiveColor,
     required this.volumeBackgroundColor,
     required this.volumeThumbColor,
-  }) : super(key: key);
+  });
 
   final Widget child;
   final Player player;
@@ -74,10 +74,13 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    playPauseController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
-    playPauseStream = player.playbackStream
-        .listen((event) => setPlaybackMode(event.isPlaying));
+    playPauseController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+    playPauseStream = player.playbackStream.listen(
+      (event) => setPlaybackMode(event.isPlaying),
+    );
     if (player.playback.isPlaying) playPauseController.forward();
   }
 
@@ -148,43 +151,53 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                       right: 0,
                       bottom: 0,
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(bottom: 60, right: 20, left: 20),
+                        padding: EdgeInsets.only(
+                          bottom: 60,
+                          right: 20,
+                          left: 20,
+                        ),
                         child: StreamBuilder<PositionState>(
                           stream: player.positionStream,
-                          builder: (BuildContext context,
-                              AsyncSnapshot<PositionState> snapshot) {
-                            final durationState = snapshot.data;
-                            final progress =
-                                durationState?.position ?? Duration.zero;
-                            final total =
-                                durationState?.duration ?? Duration.zero;
-                            return Theme(
-                              data: ThemeData.dark(),
-                              child: ProgressBar(
-                                progress: progress,
-                                total: total,
-                                barHeight: 3,
-                                progressBarColor: widget.progressBarActiveColor,
-                                thumbColor: widget.progressBarThumbColor,
-                                baseBarColor: widget.progressBarInactiveColor,
-                                thumbGlowColor:
-                                    widget.progressBarThumbGlowColor,
-                                thumbRadius:
-                                    widget.progressBarThumbRadius ?? 10.0,
-                                thumbGlowRadius:
-                                    widget.progressBarThumbGlowRadius ?? 30.0,
-                                timeLabelLocation: TimeLabelLocation.sides,
-                                timeLabelType: widget.showTimeLeft!
-                                    ? TimeLabelType.remainingTime
-                                    : TimeLabelType.totalTime,
-                                timeLabelTextStyle: widget.progressBarTextStyle,
-                                onSeek: (duration) {
-                                  player.seek(duration);
-                                },
-                              ),
-                            );
-                          },
+                          builder:
+                              (
+                                BuildContext context,
+                                AsyncSnapshot<PositionState> snapshot,
+                              ) {
+                                final durationState = snapshot.data;
+                                final progress =
+                                    durationState?.position ?? Duration.zero;
+                                final total =
+                                    durationState?.duration ?? Duration.zero;
+                                return Theme(
+                                  data: ThemeData.dark(),
+                                  child: ProgressBar(
+                                    progress: progress,
+                                    total: total,
+                                    barHeight: 3,
+                                    progressBarColor:
+                                        widget.progressBarActiveColor,
+                                    thumbColor: widget.progressBarThumbColor,
+                                    baseBarColor:
+                                        widget.progressBarInactiveColor,
+                                    thumbGlowColor:
+                                        widget.progressBarThumbGlowColor,
+                                    thumbRadius:
+                                        widget.progressBarThumbRadius ?? 10.0,
+                                    thumbGlowRadius:
+                                        widget.progressBarThumbGlowRadius ??
+                                        30.0,
+                                    timeLabelLocation: TimeLabelLocation.sides,
+                                    timeLabelType: widget.showTimeLeft!
+                                        ? TimeLabelType.remainingTime
+                                        : TimeLabelType.totalTime,
+                                    timeLabelTextStyle:
+                                        widget.progressBarTextStyle,
+                                    onSeek: (duration) {
+                                      player.seek(duration);
+                                    },
+                                  ),
+                                );
+                              },
                         ),
                       ),
                     ),
@@ -208,28 +221,36 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                                 ),
                               SizedBox(width: 50),
                               IconButton(
-                                  color: Colors.white,
-                                  iconSize: 30,
-                                  icon: Icon(Icons.replay_10),
-                                  onPressed: () {
-                                    int positionInMilliseconds = player.position
-                                            .position?.inMilliseconds ??
-                                        0;
-                                    if (!(positionInMilliseconds - 10000)
-                                        .isNegative) {
-                                      positionInMilliseconds -= 10000;
-                                    }
-                                    player.seek(Duration(
-                                        milliseconds: positionInMilliseconds));
-                                    setState(() {});
-                                  }),
+                                color: Colors.white,
+                                iconSize: 30,
+                                icon: Icon(Icons.replay_10),
+                                onPressed: () {
+                                  int positionInMilliseconds =
+                                      player
+                                          .position
+                                          .position
+                                          ?.inMilliseconds ??
+                                      0;
+                                  if (!(positionInMilliseconds - 10000)
+                                      .isNegative) {
+                                    positionInMilliseconds -= 10000;
+                                  }
+                                  player.seek(
+                                    Duration(
+                                      milliseconds: positionInMilliseconds,
+                                    ),
+                                  );
+                                  setState(() {});
+                                },
+                              ),
                               SizedBox(width: 20),
                               IconButton(
                                 color: Colors.white,
                                 iconSize: 30,
                                 icon: AnimatedIcon(
-                                    icon: AnimatedIcons.play_pause,
-                                    progress: playPauseController),
+                                  icon: AnimatedIcons.play_pause,
+                                  progress: playPauseController,
+                                ),
                                 onPressed: () {
                                   if (player.playback.isPlaying) {
                                     player.pause();
@@ -242,25 +263,34 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                               ),
                               SizedBox(width: 20),
                               IconButton(
-                                  color: Colors.white,
-                                  iconSize: 30,
-                                  icon: Icon(Icons.forward_10),
-                                  onPressed: () {
-                                    int durationInMilliseconds = player.position
-                                            .duration?.inMilliseconds ??
-                                        0;
-                                    int positionInMilliseconds = player.position
-                                            .position?.inMilliseconds ??
-                                        1;
-                                    if ((positionInMilliseconds + 10000) <=
-                                        durationInMilliseconds) {
-                                      positionInMilliseconds += 10000;
-                                      player.seek(Duration(
-                                          milliseconds:
-                                              positionInMilliseconds));
-                                      setState(() {});
-                                    }
-                                  }),
+                                color: Colors.white,
+                                iconSize: 30,
+                                icon: Icon(Icons.forward_10),
+                                onPressed: () {
+                                  int durationInMilliseconds =
+                                      player
+                                          .position
+                                          .duration
+                                          ?.inMilliseconds ??
+                                      0;
+                                  int positionInMilliseconds =
+                                      player
+                                          .position
+                                          .position
+                                          ?.inMilliseconds ??
+                                      1;
+                                  if ((positionInMilliseconds + 10000) <=
+                                      durationInMilliseconds) {
+                                    positionInMilliseconds += 10000;
+                                    player.seek(
+                                      Duration(
+                                        milliseconds: positionInMilliseconds,
+                                      ),
+                                    );
+                                    setState(() {});
+                                  }
+                                },
+                              ),
                               SizedBox(width: 50),
                               if ((snapshot.data?.medias.length ?? 0) > 1)
                                 IconButton(
@@ -298,10 +328,10 @@ class ControlState extends State<Control> with SingleTickerProviderStateMixin {
                               return Devices.all
                                   .map(
                                     (device) => PopupMenuItem(
-                                      child: Text(device.name,
-                                          style: TextStyle(
-                                            fontSize: 14.0,
-                                          )),
+                                      child: Text(
+                                        device.name,
+                                        style: TextStyle(fontSize: 14.0),
+                                      ),
                                       value: device,
                                     ),
                                   )
@@ -359,8 +389,8 @@ class VolumeControl extends StatefulWidget {
     required this.inactiveColor,
     required this.backgroundColor,
     required this.thumbColor,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   @override
   VolumeControlState createState() => VolumeControlState();
@@ -395,7 +425,8 @@ class VolumeControlState extends State<VolumeControl> {
                 child: Card(
                   color: widget.backgroundColor,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(100)),
+                    borderRadius: BorderRadius.circular(100),
+                  ),
                   child: RotatedBox(
                     quarterTurns: -1,
                     child: SliderTheme(
