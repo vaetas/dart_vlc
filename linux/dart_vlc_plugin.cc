@@ -23,6 +23,7 @@
 
 #include <cstring>
 #include <unordered_map>
+#include <mutex>
 
 #include "core.h"
 #include "include/dart_vlc/dart_vlc_video_outlet.h"
@@ -39,6 +40,20 @@ struct _DartVlcPlugin {
 std::unordered_map<int32_t, VideoOutlet*> g_video_outlets;
 
 G_DEFINE_TYPE(DartVlcPlugin, dart_vlc_plugin, g_object_get_type())
+
+typedef struct {
+  FlTextureRegistrar* registrar;
+  FlTexture* texture;
+} FrameAvailableData;
+
+static gboolean on_mark_texture_frame_available(gpointer user_data) {
+  FrameAvailableData* data = (FrameAvailableData*)user_data;
+  fl_texture_registrar_mark_texture_frame_available(data->registrar,
+                                                    data->texture);
+  g_object_unref(data->texture);
+  g_free(data);
+  return G_SOURCE_REMOVE;
+}
 
 static void dart_vlc_plugin_handle_method_call(DartVlcPlugin* self,
                                                FlMethodCall* method_call) {
@@ -65,11 +80,18 @@ static void dart_vlc_plugin_handle_method_call(DartVlcPlugin* self,
            video_outlet_ptr = it->second,
            video_outlet_private = video_outlet_private](
               uint8_t* frame, int32_t width, int32_t height) -> void {
-            video_outlet_private->buffer = frame;
-            video_outlet_private->video_width = width;
-            video_outlet_private->video_height = height;
-            fl_texture_registrar_mark_texture_frame_available(
-                texture_registrar, FL_TEXTURE(video_outlet_ptr));
+            {
+              std::lock_guard<std::mutex> lock(video_outlet_private->mutex);
+              video_outlet_private->buffer = frame;
+              video_outlet_private->video_width = width;
+              video_outlet_private->video_height = height;
+            }
+            FrameAvailableData* data = g_new0(FrameAvailableData, 1);
+            data->registrar = texture_registrar;
+            data->texture = FL_TEXTURE(video_outlet_ptr);
+            g_object_ref(data->texture);
+            g_idle_add_full(G_PRIORITY_DEFAULT, on_mark_texture_frame_available,
+                           data, nullptr);
           });
 
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(
@@ -84,6 +106,10 @@ static void dart_vlc_plugin_handle_method_call(DartVlcPlugin* self,
       response = FL_METHOD_RESPONSE(fl_method_error_response_new(
           "-2", "Texture was not found.", fl_value_new_null()));
     } else {
+      auto outlet = g_video_outlets[player_id];
+      fl_texture_registrar_unregister_texture(self->texture_registrar,
+                                              FL_TEXTURE(outlet));
+      g_object_unref(outlet);
       g_video_outlets.erase(player_id);
       auto player = g_players->Get(player_id);
       player->SetVideoFrameCallback(nullptr);

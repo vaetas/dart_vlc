@@ -21,6 +21,7 @@
 
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
+#include <mutex>
 
 #include "dart_vlc_plugin.h"
 
@@ -33,6 +34,7 @@ struct VideoOutletPrivate {
   uint8_t* buffer = nullptr;
   int32_t video_width = 0;
   int32_t video_height = 0;
+  std::mutex mutex;
 };
 
 G_DECLARE_DERIVABLE_TYPE(VideoOutlet, video_outlet, DART_VLC, VIDEO_OUTLET,
@@ -49,6 +51,7 @@ static gboolean video_outlet_copy_pixels(FlPixelBufferTexture* texture,
   auto video_outlet_private =
       (VideoOutletPrivate*)video_outlet_get_instance_private(
           DART_VLC_VIDEO_OUTLET(texture));
+  std::lock_guard<std::mutex> lock(video_outlet_private->mutex);
   *out_buffer = video_outlet_private->buffer;
   *width = video_outlet_private->video_width;
   *height = video_outlet_private->video_height;
