@@ -163,7 +163,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                     ),
                                   ),
                                   Container(
-                                    width: 152.0,
+                                    width: 160.0,
                                     child: DropdownButton<MediaType>(
                                       value: mediaType,
                                       onChanged: (value) => this
@@ -542,7 +542,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                                 ),
                               ),
                               Container(
-                                width: 152.0,
+                                width: 160.0,
                                 child: DropdownButton<MediaType>(
                                   value: mediaType,
                                   onChanged: (value) =>
