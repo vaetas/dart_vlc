@@ -49,6 +49,8 @@ class PrimaryScreenState extends State<PrimaryScreen> {
   Media? metadataCurrentMedia;
   bool _isFullscreen = false;
 
+  bool get showControls => false;
+
   @override
   void initState() {
     super.initState();
@@ -79,6 +81,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
       equalizer.setPreAmp(10.0);
       equalizer.setBandAmp(31.25, 10.0);
       player.setEqualizer(equalizer);
+      player.setPlaylistMode(PlaylistMode.repeat);
     }
   }
 
@@ -121,7 +124,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                   height: 360,
                   volumeThumbColor: Colors.blue,
                   volumeActiveColor: Colors.blue,
-                  showControls: true,
+                  showControls: showControls,
                 ),
               ),
             ],
@@ -720,7 +723,7 @@ class PrimaryScreenState extends State<PrimaryScreen> {
                   height: double.infinity,
                   volumeThumbColor: Colors.blue,
                   volumeActiveColor: Colors.blue,
-                  showControls: true,
+                  showControls: showControls,
                 ),
               ),
             ),
