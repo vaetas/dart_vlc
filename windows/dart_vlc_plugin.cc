@@ -47,7 +47,7 @@ class DartVlcPlugin : public flutter::Plugin {
 
   flutter::TextureRegistrar* texture_registrar_;
   std::unique_ptr<flutter::MethodChannel<flutter::EncodableValue>> channel_;
-  std::unordered_map<int, std::unique_ptr<VideoOutlet>> outlets_;
+  std::unordered_map<int, std::unique_ptr<VlcVideoOutlet>> outlets_;
 };
 
 void DartVlcPlugin::RegisterWithRegistrar(
@@ -87,7 +87,7 @@ void DartVlcPlugin::HandleMethodCall(
         std::get<int>(arguments[flutter::EncodableValue("playerId")]);
     auto [it, added] = outlets_.try_emplace(player_id, nullptr);
     if (added) {
-      it->second = std::make_unique<VideoOutlet>(texture_registrar_);
+      it->second = std::make_unique<VlcVideoOutlet>(texture_registrar_);
       auto player = g_players->Get(player_id);
       player->SetVideoFrameCallback(
           [outlet_ptr = it->second.get()](uint8_t* frame, int32_t width,

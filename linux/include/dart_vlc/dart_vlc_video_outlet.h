@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef VIDEO_OUTLET_H_
-#define VIDEO_OUTLET_H_
+#ifndef VLC_VIDEO_OUTLET_H_
+#define VLC_VIDEO_OUTLET_H_
 
 #include <flutter_linux/flutter_linux.h>
 #include <gtk/gtk.h>
@@ -25,11 +25,11 @@
 
 #include "dart_vlc_plugin.h"
 
-struct _VideoOutletClass {
+struct _VlcVideoOutletClass {
   FlPixelBufferTextureClass parent_class;
 };
 
-struct VideoOutletPrivate {
+struct VlcVideoOutletPrivate {
   int64_t texture_id = 0;
   uint8_t* buffer = nullptr;
   int32_t video_width = 0;
@@ -37,35 +37,35 @@ struct VideoOutletPrivate {
   std::mutex mutex;
 };
 
-G_DECLARE_DERIVABLE_TYPE(VideoOutlet, video_outlet, DART_VLC, VIDEO_OUTLET,
+G_DECLARE_DERIVABLE_TYPE(VlcVideoOutlet, vlc_video_outlet, DART_VLC, VLC_VIDEO_OUTLET,
                          FlPixelBufferTexture)
 
-G_DEFINE_TYPE_WITH_CODE(VideoOutlet, video_outlet,
+G_DEFINE_TYPE_WITH_CODE(VlcVideoOutlet, vlc_video_outlet,
                         fl_pixel_buffer_texture_get_type(),
-                        G_ADD_PRIVATE(VideoOutlet))
+                        G_ADD_PRIVATE(VlcVideoOutlet))
 
-static gboolean video_outlet_copy_pixels(FlPixelBufferTexture* texture,
+static gboolean vlc_video_outlet_copy_pixels(FlPixelBufferTexture* texture,
                                          const uint8_t** out_buffer,
                                          uint32_t* width, uint32_t* height,
                                          GError** error) {
-  auto video_outlet_private =
-      (VideoOutletPrivate*)video_outlet_get_instance_private(
-          DART_VLC_VIDEO_OUTLET(texture));
-  std::lock_guard<std::mutex> lock(video_outlet_private->mutex);
-  *out_buffer = video_outlet_private->buffer;
-  *width = video_outlet_private->video_width;
-  *height = video_outlet_private->video_height;
+  auto vlc_video_outlet_private =
+      (VlcVideoOutletPrivate*)vlc_video_outlet_get_instance_private(
+          DART_VLC_VLC_VIDEO_OUTLET(texture));
+  std::lock_guard<std::mutex> lock(vlc_video_outlet_private->mutex);
+  *out_buffer = vlc_video_outlet_private->buffer;
+  *width = vlc_video_outlet_private->video_width;
+  *height = vlc_video_outlet_private->video_height;
   return TRUE;
 }
 
-static VideoOutlet* video_outlet_new() {
-  return DART_VLC_VIDEO_OUTLET(g_object_new(video_outlet_get_type(), nullptr));
+static VlcVideoOutlet* vlc_video_outlet_new() {
+  return DART_VLC_VLC_VIDEO_OUTLET(g_object_new(vlc_video_outlet_get_type(), nullptr));
 }
 
-static void video_outlet_class_init(VideoOutletClass* klass) {
-  FL_PIXEL_BUFFER_TEXTURE_CLASS(klass)->copy_pixels = video_outlet_copy_pixels;
+static void vlc_video_outlet_class_init(VlcVideoOutletClass* klass) {
+  FL_PIXEL_BUFFER_TEXTURE_CLASS(klass)->copy_pixels = vlc_video_outlet_copy_pixels;
 }
 
-static void video_outlet_init(VideoOutlet* self) {}
+static void vlc_video_outlet_init(VlcVideoOutlet* self) {}
 
 #endif

@@ -37,7 +37,7 @@ struct _DartVlcPlugin {
   FlTextureRegistrar* texture_registrar;
 };
 
-std::unordered_map<int32_t, VideoOutlet*> g_video_outlets;
+std::unordered_map<int32_t, VlcVideoOutlet*> g_vlc_video_outlets;
 
 G_DEFINE_TYPE(DartVlcPlugin, dart_vlc_plugin, g_object_get_type())
 
@@ -63,54 +63,54 @@ static void dart_vlc_plugin_handle_method_call(DartVlcPlugin* self,
     auto arguments = fl_method_call_get_args(method_call);
     int32_t player_id =
         fl_value_get_int(fl_value_lookup_string(arguments, "playerId"));
-    auto [it, added] = g_video_outlets.try_emplace(player_id, nullptr);
+    auto [it, added] = g_vlc_video_outlets.try_emplace(player_id, nullptr);
     if (added) {
-      it->second = video_outlet_new();
+      it->second = vlc_video_outlet_new();
       FL_PIXEL_BUFFER_TEXTURE_GET_CLASS(it->second)->copy_pixels =
-          video_outlet_copy_pixels;
+          vlc_video_outlet_copy_pixels;
       fl_texture_registrar_register_texture(self->texture_registrar,
                                             FL_TEXTURE(it->second));
-      auto video_outlet_private =
-          (VideoOutletPrivate*)video_outlet_get_instance_private(it->second);
-      video_outlet_private->texture_id =
+      auto vlc_video_outlet_private =
+          (VlcVideoOutletPrivate*)vlc_video_outlet_get_instance_private(it->second);
+      vlc_video_outlet_private->texture_id =
           reinterpret_cast<int64_t>(FL_TEXTURE(it->second));
       auto player = g_players->Get(player_id);
       player->SetVideoFrameCallback(
           [texture_registrar = self->texture_registrar,
-           video_outlet_ptr = it->second,
-           video_outlet_private = video_outlet_private](
+           vlc_video_outlet_ptr = it->second,
+           vlc_video_outlet_private = vlc_video_outlet_private](
               uint8_t* frame, int32_t width, int32_t height) -> void {
             {
-              std::lock_guard<std::mutex> lock(video_outlet_private->mutex);
-              video_outlet_private->buffer = frame;
-              video_outlet_private->video_width = width;
-              video_outlet_private->video_height = height;
+              std::lock_guard<std::mutex> lock(vlc_video_outlet_private->mutex);
+              vlc_video_outlet_private->buffer = frame;
+              vlc_video_outlet_private->video_width = width;
+              vlc_video_outlet_private->video_height = height;
             }
             FrameAvailableData* data = g_new0(FrameAvailableData, 1);
             data->registrar = texture_registrar;
-            data->texture = FL_TEXTURE(video_outlet_ptr);
+            data->texture = FL_TEXTURE(vlc_video_outlet_ptr);
             g_object_ref(data->texture);
             g_idle_add_full(G_PRIORITY_DEFAULT, on_mark_texture_frame_available,
                            data, nullptr);
           });
 
       response = FL_METHOD_RESPONSE(fl_method_success_response_new(
-          fl_value_new_int(video_outlet_private->texture_id)));
+          fl_value_new_int(vlc_video_outlet_private->texture_id)));
     }
 
   } else if (strcmp(method_name, "PlayerUnregisterTexture") == 0) {
     auto arguments = fl_method_call_get_args(method_call);
     int32_t player_id =
         fl_value_get_int(fl_value_lookup_string(arguments, "playerId"));
-    if (g_video_outlets.find(player_id) == g_video_outlets.end()) {
+    if (g_vlc_video_outlets.find(player_id) == g_vlc_video_outlets.end()) {
       response = FL_METHOD_RESPONSE(fl_method_error_response_new(
           "-2", "Texture was not found.", fl_value_new_null()));
     } else {
-      auto outlet = g_video_outlets[player_id];
+      auto outlet = g_vlc_video_outlets[player_id];
       fl_texture_registrar_unregister_texture(self->texture_registrar,
                                               FL_TEXTURE(outlet));
       g_object_unref(outlet);
-      g_video_outlets.erase(player_id);
+      g_vlc_video_outlets.erase(player_id);
       auto player = g_players->Get(player_id);
       player->SetVideoFrameCallback(nullptr);
       response = FL_METHOD_RESPONSE(

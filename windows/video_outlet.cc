@@ -18,7 +18,7 @@
 
 #include "include/dart_vlc/video_outlet.h"
 
-VideoOutlet::VideoOutlet(flutter::TextureRegistrar* texture_registrar)
+VlcVideoOutlet::VlcVideoOutlet(flutter::TextureRegistrar* texture_registrar)
     : texture_registrar_(texture_registrar) {
   texture_ =
       std::make_unique<flutter::TextureVariant>(flutter::PixelBufferTexture(
@@ -29,7 +29,7 @@ VideoOutlet::VideoOutlet(flutter::TextureRegistrar* texture_registrar)
   texture_id_ = texture_registrar_->RegisterTexture(texture_.get());
 }
 
-void VideoOutlet::MarkVideoFrameAvailable(uint8_t* buffer, int32_t width,
+void VlcVideoOutlet::MarkVideoFrameAvailable(uint8_t* buffer, int32_t width,
                                           int32_t height) {
   const std::lock_guard<std::mutex> lock(mutex_);
   flutter_pixel_buffer_.buffer = buffer;
@@ -38,6 +38,6 @@ void VideoOutlet::MarkVideoFrameAvailable(uint8_t* buffer, int32_t width,
   texture_registrar_->MarkTextureFrameAvailable(texture_id_);
 }
 
-VideoOutlet::~VideoOutlet() {
+VlcVideoOutlet::~VlcVideoOutlet() {
   texture_registrar_->UnregisterTexture(texture_id_);
 }

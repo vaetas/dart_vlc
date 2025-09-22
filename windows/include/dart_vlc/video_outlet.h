@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-#ifndef VIDEO_OUTLET_H_
-#define VIDEO_OUTLET_H_
+#ifndef VLC_VIDEO_OUTLET_H_
+#define VLC_VIDEO_OUTLET_H_
 
 #include <flutter/method_channel.h>
 #include <flutter/plugin_registrar_windows.h>
@@ -25,15 +25,15 @@
 
 #include <mutex>
 
-class VideoOutlet {
+class VlcVideoOutlet {
  public:
-  VideoOutlet(flutter::TextureRegistrar* texture_registrar);
+  VlcVideoOutlet(flutter::TextureRegistrar* texture_registrar);
 
   int64_t texture_id() const { return texture_id_; }
 
   void MarkVideoFrameAvailable(uint8_t* buffer, int32_t width, int32_t height);
 
-  ~VideoOutlet();
+  ~VlcVideoOutlet();
 
  private:
   FlutterDesktopPixelBuffer flutter_pixel_buffer_{};
